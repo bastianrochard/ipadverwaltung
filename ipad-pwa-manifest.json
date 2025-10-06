@@ -1,0 +1,24 @@
+{
+  "name": "iPad-Verwaltung Gymnasium Rutesheim",
+  "short_name": "iPad-Verwaltung",
+  "description": "Verwaltung der Schüler-iPads mit Jamf School Integration",
+  "start_url": "./ipad-verwaltung-pwa.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#E85D4D",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect fill='%23E85D4D' width='192' height='192' rx='32'/%3E%3Cpath fill='white' d='M48 64h96v64H48z' stroke='white' stroke-width='8' rx='8'/%3E%3Ccircle cx='96' cy='144' r='8' fill='white'/%3E%3C/svg%3E",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect fill='%23E85D4D' width='512' height='512' rx='96'/%3E%3Cpath fill='white' d='M128 170h256v172H128z' stroke='white' stroke-width='16' rx='16'/%3E%3Ccircle cx='256' cy='384' r='20' fill='white'/%3E%3C/svg%3E",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
