@@ -56,6 +56,8 @@
       const [showImportDialog, setShowImportDialog] = useState(true);
       const [showInstallPrompt, setShowInstallPrompt] = useState(false);
       const [deferredPrompt, setDeferredPrompt] = useState(null);
+      const [sortField, setSortField] = useState('seriennummer');
+      const [sortDirection, setSortDirection] = useState('asc');
       const [formData, setFormData] = useState({
         seriennummer: '', modell: '', nutzer: '', klasse: '',
         nutzungsbeginn: new Date().toISOString().split('T')[0], vereinbarung: false
@@ -125,6 +127,43 @@
           return matchSearch && matchClass;
         }), [devices, search, classFilter]
       );
+
+      const sortedFiltered = useMemo(() => {
+        const sorted = [...filtered].sort((a, b) => {
+          let aVal = a[sortField] || '';
+          let bVal = b[sortField] || '';
+          
+          if (sortField === 'nutzungsbeginn') {
+            aVal = new Date(aVal);
+            bVal = new Date(bVal);
+          } else if (typeof aVal === 'boolean') {
+            aVal = aVal ? 1 : 0;
+            bVal = bVal ? 1 : 0;
+          } else {
+            aVal = String(aVal).toLowerCase();
+            bVal = String(bVal).toLowerCase();
+          }
+          
+          if (aVal < bVal) return sortDirection === 'asc' ? -1 : 1;
+          if (aVal > bVal) return sortDirection === 'asc' ? 1 : -1;
+          return 0;
+        });
+        return sorted;
+      }, [filtered, sortField, sortDirection]);
+
+      const handleSort = (field) => {
+        if (sortField === field) {
+          setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+        } else {
+          setSortField(field);
+          setSortDirection('asc');
+        }
+      };
+
+      const SortIcon = ({ field }) => {
+        if (sortField !== field) return <span className="text-gray-300 ml-1">⇅</span>;
+        return <span className="ml-1">{sortDirection === 'asc' ? '↑' : '↓'}</span>;
+      };
 
       const stats = useMemo(() => {
         const byClass = {};
@@ -564,7 +603,7 @@
               )}
 
               {/* Count */}
-              <div className="text-sm text-gray-500 mb-3">{filtered.length} von {devices.length} Geräten</div>
+              <div className="text-sm text-gray-500 mb-3">{sortedFiltered.length} von {devices.length} Geräten</div>
 
               {/* Table */}
               <div className="overflow-x-auto">
@@ -573,22 +612,36 @@
                     <tr className="bg-gray-100 border-b-2 border-rutesheim-red">
                       <th className="px-2 md:px-4 py-3 text-center">
                         <input type="checkbox" 
-                          checked={selectedIds.length === filtered.length && filtered.length > 0}
+                          checked={selectedIds.length === sortedFiltered.length && sortedFiltered.length > 0}
                           onChange={toggleSelectAll}
                           className="w-5 h-5 cursor-pointer" />
                       </th>
-                      <th className="px-2 md:px-4 py-3 text-left text-sm font-semibold">Serial</th>
-                      <th className="px-2 md:px-4 py-3 text-left text-sm font-semibold hidden md:table-cell">Modell</th>
-                      <th className="px-2 md:px-4 py-3 text-left text-sm font-semibold">Nutzer</th>
-                      <th className="px-2 md:px-4 py-3 text-left text-sm font-semibold">Klasse</th>
-                      <th className="px-2 md:px-4 py-3 text-left text-sm font-semibold hidden lg:table-cell">Beginn</th>
-                      <th className="px-2 md:px-4 py-3 text-center text-sm font-semibold">Vereinb.</th>
-                      <th className="px-2 md:px-4 py-3 text-left text-sm font-semibold hidden lg:table-cell">Quelle</th>
+                      <th onClick={() => handleSort('seriennummer')} className="px-2 md:px-4 py-3 text-left text-sm font-semibold cursor-pointer hover:bg-gray-200">
+                        Serial<SortIcon field="seriennummer" />
+                      </th>
+                      <th onClick={() => handleSort('modell')} className="px-2 md:px-4 py-3 text-left text-sm font-semibold hidden md:table-cell cursor-pointer hover:bg-gray-200">
+                        Modell<SortIcon field="modell" />
+                      </th>
+                      <th onClick={() => handleSort('nutzer')} className="px-2 md:px-4 py-3 text-left text-sm font-semibold cursor-pointer hover:bg-gray-200">
+                        Nutzer<SortIcon field="nutzer" />
+                      </th>
+                      <th onClick={() => handleSort('klasse')} className="px-2 md:px-4 py-3 text-left text-sm font-semibold cursor-pointer hover:bg-gray-200">
+                        Klasse<SortIcon field="klasse" />
+                      </th>
+                      <th onClick={() => handleSort('nutzungsbeginn')} className="px-2 md:px-4 py-3 text-left text-sm font-semibold hidden lg:table-cell cursor-pointer hover:bg-gray-200">
+                        Beginn<SortIcon field="nutzungsbeginn" />
+                      </th>
+                      <th onClick={() => handleSort('vereinbarung')} className="px-2 md:px-4 py-3 text-center text-sm font-semibold cursor-pointer hover:bg-gray-200">
+                        Vereinb.<SortIcon field="vereinbarung" />
+                      </th>
+                      <th onClick={() => handleSort('quelle')} className="px-2 md:px-4 py-3 text-left text-sm font-semibold hidden lg:table-cell cursor-pointer hover:bg-gray-200">
+                        Quelle<SortIcon field="quelle" />
+                      </th>
                       <th className="px-2 md:px-4 py-3 text-center text-sm font-semibold">Aktionen</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {filtered.map((d, i) => (
+                    {sortedFiltered.map((d, i) => (
                       <tr key={d.id} className={`border-b hover:bg-gray-50 ${i % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}>
                         <td className="px-2 md:px-4 py-3 text-center">
                           <input type="checkbox"
@@ -629,7 +682,7 @@
                 </table>
               </div>
 
-              {filtered.length === 0 && (
+              {sortedFiltered.length === 0 && (
                 <div className="text-center py-12 text-gray-500">Keine Geräte gefunden</div>
               )}
             </div>
